@@ -127,7 +127,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     };
 
     private void updateViews() {
-        Glide.with(getApplicationContext()).load(info.getPosterUrl()).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(ivMoviePoster);
+        Glide.with(getApplicationContext()).load(info.getPosterUrl()).into(ivMoviePoster);
         tvDirector.setText(info.getDirector());
         tvArea.setText(info.getArea());
         tvEditor.setText(info.getEditor());
@@ -136,10 +136,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         tvMainRole.setText(info.getMainActors());
         tvName.setText(info.getTitle());
         tvType.setText(info.getType());
-        for (int i = 0; i < info.getJumpInfos().size(); i++) {
-            Toast.makeText(this, "url: " + info.getJumpInfos().get(i).getJumpUrl() + "\n"
-                    + "pwd:" + info.getJumpInfos().get(i).getPwd(), Toast.LENGTH_SHORT).show();
-        }
+//        for (int i = 0; i < info.getJumpInfos().size(); i++) {
+//            Toast.makeText(this, "url: " + info.getJumpInfos().get(i).getJumpUrl() + "\n"
+//                    + "pwd:" + info.getJumpInfos().get(i).getPwd(), Toast.LENGTH_SHORT).show();
+//        }
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

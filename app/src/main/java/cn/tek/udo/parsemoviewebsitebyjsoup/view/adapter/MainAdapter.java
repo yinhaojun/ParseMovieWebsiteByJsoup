@@ -51,7 +51,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
     public void onBindViewHolder(final MainAdapter.ViewHolder holder, final int position) {
         MovieInfo movieInfo = movies.get(position);
         holder.tvMovieName.setText(movieInfo.getTitle());
-        Glide.with(context).load(movieInfo.getPosterUrl()).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(holder.ivMoviePoster);
+        Glide.with(context).load(movieInfo.getPosterUrl()).error(R.mipmap.movie_default_bg).placeholder(R.mipmap.movie_default_bg).into(holder.ivMoviePoster);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -27,9 +27,9 @@
                 android:id="@+id/iv_movie_poster"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
+                android:layout_margin="10dp"
                 android:adjustViewBounds="true"
-                android:scaleType="center"
-                android:src="@mipmap/ic_launcher"
+                android:scaleType="centerInside"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.7"/>
 
