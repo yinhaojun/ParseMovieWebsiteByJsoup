@@ -1,5 +1,6 @@
 package cn.tek.udo.parsemoviewebsitebyjsoup.bean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ public class MovieDetailInfo {
     private String language;
     private String date;
     private String intro;
-    private List<JumpInfo> jumpInfos;
+    private List<JumpInfo> jumpInfos = new ArrayList<>();
 
     public String getPosterUrl() {
         return posterUrl;
@@ -99,12 +100,36 @@ public class MovieDetailInfo {
         this.intro = intro;
     }
 
-    class JumpInfo {
+    public void addJumpInfo(JumpInfo jumpInfo) {
+        this.jumpInfos.add(jumpInfo);
+    }
+
+    public List<JumpInfo> getJumpInfos() {
+        return jumpInfos;
+    }
+
+    public static class JumpInfo {
         private String jumpUrl;
         private String pwd;
 
         public JumpInfo(String jumpUrl, String pwd) {
             this.jumpUrl = jumpUrl;
+            this.pwd = pwd;
+        }
+
+        public String getJumpUrl() {
+            return jumpUrl;
+        }
+
+        public void setJumpUrl(String jumpUrl) {
+            this.jumpUrl = jumpUrl;
+        }
+
+        public String getPwd() {
+            return pwd;
+        }
+
+        public void setPwd(String pwd) {
             this.pwd = pwd;
         }
     }

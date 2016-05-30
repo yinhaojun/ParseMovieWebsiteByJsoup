@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 case MSG_PARSE_ERROR:
                     recyclerview.refreshComplete();
                     recyclerview.loadMoreComplete();
+                    Toast.makeText(MainActivity.this, "出错啦,刷新试试", Toast.LENGTH_LONG).show();
                     break;
             }
         }

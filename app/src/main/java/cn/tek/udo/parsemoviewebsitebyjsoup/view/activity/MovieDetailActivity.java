@@ -1,6 +1,8 @@
 package cn.tek.udo.parsemoviewebsitebyjsoup.view.activity;
 
+import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -14,8 +16,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.Theme;
 import com.bumptech.glide.Glide;
+import com.thefinestartist.finestwebview.FinestWebView;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -80,7 +86,9 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("详情");
+        collapsingToolbarLayout.setTitle("电影详情");
+        collapsingToolbarLayout.setCollapsedTitleTextColor(getResources().getColor(android.R.color.white));
+        collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,13 +98,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         getData(url);
 
-        snackbar = Snackbar.make(ivMoviePoster, "向上滑动查看详情", Snackbar.LENGTH_LONG).setAction("Get it", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackbar.dismiss();
-            }
-        });
-        snackbar.show();
+//        Toast.makeText(MovieDetailActivity.this, "向上滑动查看详情", Toast.LENGTH_SHORT).show();
+
     }
 
     private void getData(final String url) {
@@ -124,7 +127,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     };
 
     private void updateViews() {
-        Glide.with(this).load(info.getPosterUrl()).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(ivMoviePoster);
+        Glide.with(getApplicationContext()).load(info.getPosterUrl()).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(ivMoviePoster);
         tvDirector.setText(info.getDirector());
         tvArea.setText(info.getArea());
         tvEditor.setText(info.getEditor());
@@ -133,6 +136,62 @@ public class MovieDetailActivity extends AppCompatActivity {
         tvMainRole.setText(info.getMainActors());
         tvName.setText(info.getTitle());
         tvType.setText(info.getType());
+        for (int i = 0; i < info.getJumpInfos().size(); i++) {
+            Toast.makeText(this, "url: " + info.getJumpInfos().get(i).getJumpUrl() + "\n"
+                    + "pwd:" + info.getJumpInfos().get(i).getPwd(), Toast.LENGTH_SHORT).show();
+        }
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String[] items = new String[info.getJumpInfos().size()];
+                for (int i = 0; i < info.getJumpInfos().size(); i++) {
+                    items[i] = "URL: \t" + info.getJumpInfos().get(i).getJumpUrl() + "\n" + info.getJumpInfos().get(i).getPwd();
+                }
+                new MaterialDialog.Builder(v.getContext())
+                        .theme(Theme.LIGHT)
+                        .title("请选择")
+                        .items(items)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                dialog.dismiss();
+
+//                                //Uri uri = Uri.parse("file://"+file.getAbsolutePath());
+//                                Intent intent = new Intent();
+//                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                //设置intent的Action属性
+//                                intent.setAction(Intent.ACTION_VIEW);
+//                                //获取文件file的MIME类型
+////                                String type = getMIMEType(file);
+//                                //设置intent的data和Type属性。
+//                                intent.setDataAndType(Uri.parse(info.getJumpInfos().get(which).getJumpUrl()), "text/html");
+//                                //跳转
+//                                startActivity(intent);
+                                String agent = "MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
+                                new FinestWebView.Builder(MovieDetailActivity.this).webViewUserAgentString(agent).webViewJavaScriptCanOpenWindowsAutomatically(true).webViewJavaScriptEnabled(true).show(info.getJumpInfos().get(which).getJumpUrl());
+                            }
+                        })
+                        .show();
+
+//                new MaterialDialog.Builder(v.getContext())
+//                        .title("请选择")
+//                        .items(items)
+//                        .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+//                            @Override
+//                            public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+//                                /**
+//                                 * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
+//                                 * returning false here won't allow the newly selected radio button to actually be selected.
+//                                 **/
+//                                return true;
+//                            }
+//                        })
+////                        .positiveText(R.string.choose)
+//                        .show();
+            }
+        });
+
 
     }
 
@@ -165,17 +224,33 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
 
         Elements details = element.getElementsByTag("p");
+        parsePlayUrl(element);
         Log.i("ll", details.toString());
-
+        Element linkReport = element.getElementById("link-report");
 
         if (details.size() == 3) {
-            String intro = details.get(2).childNode(0).childNode(0).toString();
-            info.setIntro(intro);//设置介绍
+            if (details.get(2).childNodeSize() > 1) {
+                Node node = details.get(2).childNode(0);
+                if (node.childNodeSize() > 1) {
+                    String intro = node.childNode(0).toString();
+                    info.setIntro(intro);//设置介绍
+                }
+            }
         }
+
+        if (linkReport != null) {
+            Elements reports = linkReport.getElementsByTag("span");
+            if (reports.size() >= 1) {
+                String intro = reports.get(0).ownText();
+                info.setIntro(intro);
+            }
+        }
+
+
         List<Node> nodes;
         for (int j = 0; j < details.size(); j++) {
             Element element1 = details.get(j);
-            if (element1.toString().contains("类型") ) {
+            if (element1.toString().contains("类型")) {
                 nodes = details.get(1).childNodes();
                 for (int i = 0; i < nodes.size(); i++) {
                     Node node = nodes.get(i);
@@ -221,11 +296,15 @@ public class MovieDetailActivity extends AppCompatActivity {
                     director = attrs.get(i).ownText();
                 } else {
                     for (Element e : directors) {
-                        director = director + e.text();
+                        if (TextUtils.equals(e.text(), "")) {
+                            continue;
+                        } else {
+                            director = director + e.text() + "\\";
+                        }
+
                     }
+                    director = director.substring(0, director.length() - 1);
                 }
-//                String attr = attrs.get(i).ownText();
-//                Log.i("attr", attr + hello);
                 info.setDirector(director);
             } else if (TextUtils.equals(type, "编剧")) {
                 Element element1 = attrs.get(i);
@@ -235,9 +314,15 @@ public class MovieDetailActivity extends AppCompatActivity {
                     editor = attrs.get(i).ownText();
                 } else {
                     for (Element e : editors) {
-                        editor = editor + e.text();
+                        if (TextUtils.equals(e.text(), "")) {
+                            continue;
+                        } else {
+                            editor = editor + e.text() + "\\";
+                        }
                     }
+                    editor = editor.substring(0, editor.length() - 1);
                 }
+
                 info.setEditor(editor);
             } else if (TextUtils.equals(type, "主演")) {
                 Element element1 = attrs.get(i);
@@ -247,8 +332,13 @@ public class MovieDetailActivity extends AppCompatActivity {
                     main = attrs.get(i).ownText();
                 } else {
                     for (Element e : mains) {
-                        main = main + e.text();
+                        if (TextUtils.equals(e.text(), "")) {
+                            continue;
+                        } else {
+                            main = main + e.text() + "\\";
+                        }
                     }
+                    main = main.substring(0, main.length() - 1);
                 }
                 info.setMainActors(main);
             } else {
@@ -257,5 +347,27 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
         Log.i("ll-type", info.toString());
         handler.sendEmptyMessage(1);
+    }
+
+
+    private void parsePlayUrl(Element element) {
+        Elements playInfos = element.getElementsByTag("h2");
+        Log.i("pls", "adsfadsf" + playInfos.toString());
+        for (int i = 0; i < playInfos.size(); i++) {
+            Element e = playInfos.get(i);
+            Elements spans = e.select("span");
+            for (Element span : spans) {
+                Elements elements = span.select("a[href]");
+                String url = "";
+                for (int j = 0; j < elements.size(); j++) {
+                    url = elements.get(j).attr("href");
+                    Log.i("ll-type", url);
+                }
+                String text = span.text();
+                String ll = span.ownText();
+                MovieDetailInfo.JumpInfo jumpInfo = new MovieDetailInfo.JumpInfo(url, ll);
+                info.addJumpInfo(jumpInfo);
+            }
+        }
     }
 }

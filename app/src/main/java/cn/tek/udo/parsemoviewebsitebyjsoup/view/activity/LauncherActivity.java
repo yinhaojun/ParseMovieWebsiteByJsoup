@@ -33,14 +33,24 @@ public class LauncherActivity extends Activity {
 //                parseWebsite();
 //            }
 //        }).start();
+
+
+
+
+
+
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(LauncherActivity.this, MainActivity.class));
+                startActivity(new Intent(LauncherActivity.this, ReliefActivity.class));
                 finish();
             }
         }, 500);
     }
+
+//    https://raw.githubusercontent.com/yinhaojun/ParseMovieWebsiteByJsoup/master/upgrade.json
+
 
 
     private void parsePager(String url) {
