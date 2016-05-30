@@ -56,6 +56,7 @@ public class ReliefActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(ReliefActivity.this, MainActivity.class));
+                finish();
             }
         });
     }
